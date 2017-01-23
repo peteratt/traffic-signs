@@ -4,3 +4,9 @@ data
 models
 *.swp
 *.p
+.idea/
+.idea/misc.xml
+.idea/modules.xml
+.idea/traffic-signs.iml
+.idea/workspace.xml
+traffic-signs-data/
