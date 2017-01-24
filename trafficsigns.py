@@ -253,7 +253,7 @@ print("added jitter data to dataset")
 ### Feel free to use as many code cells as needed.
 
 """
-LeNet Architecture
+architecture Architecture
 
 HINTS for layers:
 
@@ -270,49 +270,45 @@ HINTS for layers:
 from tensorflow.contrib.layers import flatten
 
 # NOTE: Feel free to change these.
-EPOCHS = 10
-BATCH_SIZE = 64
+EPOCHS = 100
+BATCH_SIZE = 250
 
 
-# LeNet architecture:
+# architecture:
 # INPUT -> CONV -> ACT -> POOL -> CONV -> ACT -> POOL -> FLATTEN -> FC -> ACT -> FC
 #
 # Don't worry about anything else in the file too much, all you have to do is
-# create the LeNet and return the result of the last fully connected layer.
-def LeNet(x):
+# create the architecture and return the result of the last fully connected layer.
+def architecture(x):
     # Reshape from 2D to 4D. This prepares the data for
     # convolutional and pooling layers.
     x = tf.reshape(x, (-1, 32, 32, 1))
-    # Resize to 32x32.
-    x = tf.image.resize_images(x, (32, 32))
 
-    # TODO: Define the LeNet architecture. INPUT: 32x32x1
-
-    # C1: 28x28x6
+    # C1: 32x32x16
     stride_c1 = 1
-    filter_dimension_c1 = 5
-    filter_depth_c1 = 6
+    filter_dimension_c1 = 3
+    filter_depth_c1 = 16
     F_W_c1 = tf.Variable(tf.truncated_normal((filter_dimension_c1, filter_dimension_c1, 1, filter_depth_c1)))
     F_b_c1 = tf.Variable(tf.zeros(filter_depth_c1))
     strides_c1 = [1, stride_c1, stride_c1, 1]
-    padding_c1 = 'VALID'
+    padding_c1 = 'SAME'
 
     x = tf.nn.conv2d(x, F_W_c1, strides_c1, padding_c1) + F_b_c1
 
     # A1:
     x = tf.nn.relu(x)
 
-    # MP1: 14x14x6
+    # MP1: 16x16x16
     strides_mp1 = [1, 2, 2, 1]
     filter_dimension_mp1 = 2
     padding_mp1 = 'VALID'
 
     x = tf.nn.max_pool(x, [1, filter_dimension_mp1, filter_dimension_mp1, 1], strides_mp1, padding_mp1)
 
-    # C2: 10x10x16
+    # C2: 8x8x128
     stride_c2 = 1
-    filter_dimension_c2 = 5
-    filter_depth_c2 = 16
+    filter_dimension_c2 = 4
+    filter_depth_c2 = 128
     F_W_c2 = tf.Variable(
         tf.truncated_normal((filter_dimension_c2, filter_dimension_c2, filter_depth_c1, filter_depth_c2)))
     F_b_c2 = tf.Variable(tf.zeros(filter_depth_c2))
@@ -324,7 +320,7 @@ def LeNet(x):
     # A2:
     x = tf.nn.relu(x)
 
-    # MP2: 5x5x16
+    # MP2: 4x4x128
     strides_mp2 = [1, 2, 2, 1]
     filter_dimension_mp2 = 2
     padding_mp2 = 'VALID'
@@ -334,16 +330,16 @@ def LeNet(x):
     # FLATTEN
     x = flatten(x)
 
-    # FC1: 400->120
-    F_W_fc1 = tf.Variable(tf.random_normal((x.get_shape().as_list()[-1], 120)))
-    F_b_fc1 = tf.Variable(tf.zeros(120))
+    # FC1: 2048->512
+    F_W_fc1 = tf.Variable(tf.random_normal((x.get_shape().as_list()[-1], 512)))
+    F_b_fc1 = tf.Variable(tf.zeros(512))
     x = tf.add(tf.matmul(x, F_W_fc1), F_b_fc1)
 
     # A3:
     x = tf.nn.relu(x)
 
-    # FC2: 120->43
-    F_W_fc2 = tf.Variable(tf.random_normal((120, 43)))
+    # FC2: 512->43
+    F_W_fc2 = tf.Variable(tf.random_normal((512, 43)))
     F_b_fc2 = tf.Variable(tf.zeros(43))
     x = tf.add(tf.matmul(x, F_W_fc2), F_b_fc2)
 
@@ -409,8 +405,8 @@ test_dataset = Dataset(flatten_dataset(X_test_prep), one_hot(y_test, n_classes))
 x = tf.placeholder(tf.float32, (None, 1024))
 # Classify over number of classes (43).
 y = tf.placeholder(tf.float32, (None, n_classes))
-# Create the LeNet.
-fc2 = LeNet(x)
+# Create the architecture.
+fc2 = architecture(x)
 
 loss_op = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(fc2, y))
 opt = tf.train.AdamOptimizer()
