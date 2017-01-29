@@ -271,7 +271,7 @@ from tensorflow.contrib.layers import flatten
 
 # NOTE: Feel free to change these.
 EPOCHS = 100
-BATCH_SIZE = 250
+BATCH_SIZE = 64
 
 
 # architecture:
@@ -295,6 +295,8 @@ def architecture(x):
 
     x = tf.nn.conv2d(x, F_W_c1, strides_c1, padding_c1) + F_b_c1
 
+    print("SHAPE AFTER C1={}", x.get_shape())
+
     # A1:
     x = tf.nn.relu(x)
 
@@ -305,9 +307,11 @@ def architecture(x):
 
     x = tf.nn.max_pool(x, [1, filter_dimension_mp1, filter_dimension_mp1, 1], strides_mp1, padding_mp1)
 
-    # C2: 8x8x128
+    print("SHAPE AFTER MP1={}", x.get_shape())
+
+    # C2: 12x12x128
     stride_c2 = 1
-    filter_dimension_c2 = 4
+    filter_dimension_c2 = 5
     filter_depth_c2 = 128
     F_W_c2 = tf.Variable(
         tf.truncated_normal((filter_dimension_c2, filter_dimension_c2, filter_depth_c1, filter_depth_c2)))
@@ -317,31 +321,43 @@ def architecture(x):
 
     x = tf.nn.conv2d(x, F_W_c2, strides_c2, padding_c2) + F_b_c2
 
+    print("SHAPE AFTER C2={}", x.get_shape())
+
     # A2:
     x = tf.nn.relu(x)
 
-    # MP2: 4x4x128
+    # MP2: 6x6x128
     strides_mp2 = [1, 2, 2, 1]
     filter_dimension_mp2 = 2
     padding_mp2 = 'VALID'
 
     x = tf.nn.max_pool(x, [1, filter_dimension_mp2, filter_dimension_mp2, 1], strides_mp2, padding_mp2)
 
+    print("SHAPE AFTER MP2={}", x.get_shape())
+
     # FLATTEN
     x = flatten(x)
 
-    # FC1: 2048->512
-    F_W_fc1 = tf.Variable(tf.random_normal((x.get_shape().as_list()[-1], 512)))
-    F_b_fc1 = tf.Variable(tf.zeros(512))
+    # FC1: 4608->1000
+    F_W_fc1 = tf.Variable(tf.random_normal((x.get_shape().as_list()[-1], 1000)))
+    F_b_fc1 = tf.Variable(tf.zeros(1000))
     x = tf.add(tf.matmul(x, F_W_fc1), F_b_fc1)
 
     # A3:
     x = tf.nn.relu(x)
 
-    # FC2: 512->43
-    F_W_fc2 = tf.Variable(tf.random_normal((512, 43)))
-    F_b_fc2 = tf.Variable(tf.zeros(43))
+    # FC2: 1000->400
+    F_W_fc2 = tf.Variable(tf.random_normal((1000, 400)))
+    F_b_fc2 = tf.Variable(tf.zeros(400))
     x = tf.add(tf.matmul(x, F_W_fc2), F_b_fc2)
+
+    # A4:
+    x = tf.nn.relu(x)
+
+    # FC3: 400->43
+    F_W_fc3 = tf.Variable(tf.random_normal((400, 43)))
+    F_b_fc3 = tf.Variable(tf.zeros(43))
+    x = tf.add(tf.matmul(x, F_W_fc3), F_b_fc3)
 
     # Return the result of the last fully connected layer.
     return x
