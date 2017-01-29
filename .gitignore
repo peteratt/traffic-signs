@@ -9,3 +9,4 @@ models
 .idea/traffic-signs.iml
 .idea/workspace.xml
 traffic-signs-data/
+__pycache__/
