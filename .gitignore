@@ -3,7 +3,6 @@ data
 *.h5
 models
 *.swp
-*.p
 .idea/
 .idea/misc.xml
 .idea/modules.xml
